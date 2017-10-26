@@ -19,6 +19,10 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Random;
+import java.util.UUID;
+
+import org.json.JSONObject;
+
 
 public class Utils {
     private static final Random RANDOM = new Random();
@@ -52,6 +56,43 @@ public class Utils {
         }
         try {
             return ByteBuffer.wrap(sb.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public static ByteBuffer generatePcapUserEventData(Long sequenceNumber) {
+    	
+    		JSONObject record = new JSONObject();    		
+    		record.put("createdDate", System.currentTimeMillis());
+    		record.put("recordType", "USER_EVENT");
+    		JSONObject correlationIds = new JSONObject();
+    		final String userGuid =  "EventDataPipeline-loadtest-fakeUserGuid-"+sequenceNumber;
+    		correlationIds.put("userGuid", userGuid);
+    		record.put("correlatiionIds", correlationIds);
+    		String eventUuid = UUID.randomUUID().toString();
+    		record.put("id", eventUuid);
+    		
+    		JSONObject body = new JSONObject();
+    		body.put("eventId", RANDOM.nextLong());
+    		body.put("tokenId", RANDOM.nextInt());
+    		body.put("userSiteId", RANDOM.nextInt());
+    		body.put("id", eventUuid);
+    		body.put("eventUuid", eventUuid);
+    		body.put("eventType", "ACCOUNT_VERIFICATION_SENT");
+    		body.put("sessionId", "0E5EE5BA5185054AC6945E81D59B3CE3");
+    		body.put("ipAddrString", "127.0.0.1");
+    		body.put("userGuid", userGuid);
+    		body.put("userId", RANDOM.nextLong());
+    		body.put("geo", "{\"COUNTRY\":\"US\",\"IP\":\"70.35.47.190\",\"ISP\":\"unspecified\",\"ORG\":\"unspecified\"}");
+    		body.put("clientType", "WEB");
+    		body.put("detail", "Product Added by UserProductManager:  | *UserProduct* | Name: Wells Fargo Bank - Investments Id: 1764 Product Name: Wells Fargo Bank - Investments Yodlee CS Id: 10862 aggregationInProgress: null User: jay@personalcapital.com");
+    		body.put("status", "NOT_VIEWED");
+    		
+    		record.put("body", body);
+    		             
+        try {
+            return ByteBuffer.wrap(record.toString().getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
